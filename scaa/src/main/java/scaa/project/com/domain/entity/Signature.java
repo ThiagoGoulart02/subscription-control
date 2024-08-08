@@ -1,15 +1,18 @@
 package scaa.project.com.domain.entity;
 
+import java.time.LocalDate;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import scaa.project.com.application.dto.signature.request.SignatureDTO;
-
-import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "signatures")
@@ -20,7 +23,7 @@ import java.util.Date;
 public class Signature {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -35,7 +38,7 @@ public class Signature {
     @Column(name = "end_term")
     private LocalDate endTerm;
 
-    public Signature(Application application, Customer customer, LocalDate beginningTerm, LocalDate endTerm){
+    public Signature(Application application, Customer customer, LocalDate beginningTerm, LocalDate endTerm) {
         this.application = application;
         this.customer = customer;
         this.beginningTerm = beginningTerm;

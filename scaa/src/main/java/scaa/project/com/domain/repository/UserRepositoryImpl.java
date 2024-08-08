@@ -1,11 +1,11 @@
 package scaa.project.com.domain.repository;
 
-import org.apache.coyote.Response;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+
 import scaa.project.com.application.dto.user.request.UserDTO;
 import scaa.project.com.application.dto.user.response.UserResponseDTO;
-
-import java.util.List;
 
 public interface UserRepositoryImpl {
 

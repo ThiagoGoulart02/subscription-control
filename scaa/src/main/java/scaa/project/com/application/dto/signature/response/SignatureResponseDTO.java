@@ -1,12 +1,10 @@
 package scaa.project.com.application.dto.signature.response;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import scaa.project.com.domain.entity.Application;
-import scaa.project.com.domain.entity.Customer;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -15,11 +13,13 @@ public class SignatureResponseDTO {
 
     private Long id;
 
-    private Application application;
+    private Long applicationId;
 
-    private Customer customer;
+    private Long customerId;
 
     private LocalDate beginningTerm;
 
     private LocalDate endTerm;
+
+    private String status;
 }
