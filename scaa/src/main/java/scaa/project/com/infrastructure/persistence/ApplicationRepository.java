@@ -5,5 +5,4 @@ import scaa.project.com.domain.entity.Application;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-    Application findByName(String name);
 }

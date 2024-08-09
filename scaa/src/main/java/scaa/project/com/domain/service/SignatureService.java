@@ -23,133 +23,152 @@ import scaa.project.com.infrastructure.persistence.SignatureRepository;
 @Service
 public class SignatureService implements SignatureRepositoryImpl {
 
-        @Autowired
-        private SignatureRepository repository;
+    @Autowired
+    private SignatureRepository repository;
 
-        @Autowired
-        private CustomerRepository customerRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
-        @Autowired
-        private ApplicationRepository applicationRepository;
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
-        public ResponseEntity<SignatureResponseDTO> createSignature(SignatureDTO dto) {
-                Customer customer = customerRepository.findById(dto.customerId()).orElse(null);
-                if (customer == null)
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    public ResponseEntity<SignatureResponseDTO> createSignature(SignatureDTO dto) {
+        Customer customer = customerRepository.findById(dto.customerId()).orElse(null);
+        if (customer == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
-                Application application = applicationRepository.findById(dto.applicationId()).orElse(null);
-                if (application == null)
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        Application application = applicationRepository.findById(dto.applicationId()).orElse(null);
+        if (application == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
-                LocalDate beginningTerm = LocalDate.now();
-                LocalDate endTerm = LocalDate.now().plusDays(7);
+        boolean signatureExists = repository.findByCustomerId(customer.getId())
+                .stream()
+                .anyMatch(sig -> sig.getApplication()
+                        .getId()
+                        .equals(application.getId()
+                        )
+                );
 
-                var signature = repository.save(new Signature(application, customer, beginningTerm, endTerm));
+        if (signatureExists) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(SignatureResponseDTO.builder()
-                                                .id(signature.getId())
-                                                .applicationId(signature.getApplication().getId())
-                                                .customerId(signature.getCustomer().getId())
-                                                .beginningTerm(signature.getBeginningTerm())
-                                                .endTerm(signature.getEndTerm()).build());
-        }
+        LocalDate beginningTerm = LocalDate.now();
+        LocalDate endTerm = LocalDate.now().plusDays(7);
 
-        public ResponseEntity<List<SignatureResponseDTO>> getSignaturesByType(SignatureType type) {
-                List<SignatureResponseDTO> signatures;
-                switch (type) {
-                        case ALL:
-                                signatures = repository.findAll()
-                                                .stream()
-                                                .map(signature -> SignatureResponseDTO.builder()
-                                                                .id(signature.getId())
-                                                                .applicationId(signature.getApplication().getId())
-                                                                .customerId(signature.getCustomer().getId())
-                                                                .beginningTerm(signature.getBeginningTerm())
-                                                                .endTerm(signature.getEndTerm())
-                                                                .status(signature.getEndTerm()
-                                                                                .isAfter(LocalDate.now()) ? "ACTIVE"
-                                                                                                : "CANCELED")
-                                                                .build())
-                                                .toList();
-                                return ResponseEntity.status(HttpStatus.OK).body(signatures);
-                        case ACTIVES:
-                                signatures = repository.findAll()
-                                                .stream()
-                                                .filter(signature -> signature.getEndTerm()
-                                                                .isAfter(LocalDate.now()))
-                                                .map(signature -> SignatureResponseDTO.builder()
-                                                                .id(signature.getId())
-                                                                .applicationId(signature.getApplication().getId())
-                                                                .customerId(signature.getCustomer().getId())
-                                                                .beginningTerm(signature.getBeginningTerm())
-                                                                .endTerm(signature.getEndTerm())
-                                                                .status("ACTIVE")
-                                                                .build())
-                                                .collect(Collectors.toList());
-                                break;
-                        case CANCELEDS:
-                                signatures = repository.findAll()
-                                                .stream()
-                                                .filter(signature -> signature.getEndTerm()
-                                                                .isBefore(LocalDate.now()))
-                                                .map(signature -> SignatureResponseDTO.builder()
-                                                                .id(signature.getId())
-                                                                .applicationId(signature.getApplication().getId())
-                                                                .customerId(signature.getCustomer().getId())
-                                                                .beginningTerm(signature.getBeginningTerm())
-                                                                .endTerm(signature.getEndTerm())
-                                                                .status("CANCELED")
-                                                                .build())
-                                                .collect(Collectors.toList());
-                                break;
-                        default:
-                                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-                }
+        var signature = repository.save(new Signature(application, customer, beginningTerm, endTerm));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(SignatureResponseDTO.builder()
+                        .id(signature.getId())
+                        .applicationId(signature.getApplication().getId())
+                        .customerId(signature.getCustomer().getId())
+                        .beginningTerm(signature.getBeginningTerm())
+                        .status("ACTIVE")
+                        .endTerm(signature.getEndTerm()).build()
+                );
+    }
+
+    public ResponseEntity<List<SignatureResponseDTO>> getSignaturesByType(SignatureType type) {
+        List<SignatureResponseDTO> signatures;
+        switch (type) {
+            case ALL:
+                signatures = repository.findAll()
+                        .stream()
+                        .map(signature -> SignatureResponseDTO.builder()
+                                .id(signature.getId())
+                                .applicationId(signature.getApplication().getId())
+                                .customerId(signature.getCustomer().getId())
+                                .beginningTerm(signature.getBeginningTerm())
+                                .endTerm(signature.getEndTerm())
+                                .status(signature.getEndTerm()
+                                        .isAfter(LocalDate.now()) ? "ACTIVE"
+                                        : "CANCELED")
+                                .build()
+                        )
+                        .toList();
                 return ResponseEntity.status(HttpStatus.OK).body(signatures);
+            case ACTIVES:
+                signatures = repository.findAll()
+                        .stream()
+                        .filter(signature -> signature.getEndTerm()
+                                .isAfter(LocalDate.now()))
+                        .map(signature -> SignatureResponseDTO.builder()
+                                .id(signature.getId())
+                                .applicationId(signature.getApplication().getId())
+                                .customerId(signature.getCustomer().getId())
+                                .beginningTerm(signature.getBeginningTerm())
+                                .endTerm(signature.getEndTerm())
+                                .status("ACTIVE")
+                                .build()
+                        )
+                        .collect(Collectors.toList());
+                break;
+            case CANCELED:
+                signatures = repository.findAll()
+                        .stream()
+                        .filter(signature -> signature.getEndTerm()
+                                .isBefore(LocalDate.now()))
+                        .map(signature -> SignatureResponseDTO.builder()
+                                .id(signature.getId())
+                                .applicationId(signature.getApplication().getId())
+                                .customerId(signature.getCustomer().getId())
+                                .beginningTerm(signature.getBeginningTerm())
+                                .endTerm(signature.getEndTerm())
+                                .status("CANCELED")
+                                .build()
+                        )
+                        .collect(Collectors.toList());
+                break;
+            default:
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+        return ResponseEntity.status(HttpStatus.OK).body(signatures);
+    }
 
-        public ResponseEntity<List<SignatureResponseDTO>> getSignatureByCustomer(Long id) {
-                return ResponseEntity.status(HttpStatus.OK)
-                                .body(repository.findByCustomerId(id)
-                                                .stream()
-                                                .map(signature -> SignatureResponseDTO.builder()
-                                                                .id(signature.getId())
-                                                                .applicationId(signature.getApplication().getId())
-                                                                .customerId(signature.getCustomer().getId())
-                                                                .beginningTerm(signature.getBeginningTerm())
-                                                                .endTerm(signature.getEndTerm())
-                                                                .status(signature.getEndTerm()
-                                                                                .isAfter(LocalDate.now()) ? "ACTIVE"
-                                                                                                : "CANCELED")
-                                                                .build())
-                                                .toList());
-        }
+    public ResponseEntity<List<SignatureResponseDTO>> getSignatureByCustomer(Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(repository.findByCustomerId(id)
+                        .stream()
+                        .map(signature -> SignatureResponseDTO.builder()
+                                .id(signature.getId())
+                                .applicationId(signature.getApplication().getId())
+                                .customerId(signature.getCustomer().getId())
+                                .beginningTerm(signature.getBeginningTerm())
+                                .endTerm(signature.getEndTerm())
+                                .status(signature.getEndTerm()
+                                        .isAfter(LocalDate.now()) ? "ACTIVE"
+                                        : "CANCELED")
+                                .build()
+                        )
+                        .toList());
+    }
 
-        public ResponseEntity<List<SignatureResponseDTO>> getSignatureByApplication(Long id) {
-                return ResponseEntity.status(HttpStatus.OK)
-                                .body(repository.findByApplicationId(id)
-                                                .stream()
-                                                .map(signature -> SignatureResponseDTO.builder()
-                                                                .id(signature.getId())
-                                                                .applicationId(signature.getApplication().getId())
-                                                                .customerId(signature.getCustomer().getId())
-                                                                .beginningTerm(signature.getBeginningTerm())
-                                                                .endTerm(signature.getEndTerm())
-                                                                .status(signature.getEndTerm()
-                                                                                .isAfter(LocalDate.now()) ? "ACTIVE"
-                                                                                                : "CANCELED")
-                                                                .build())
-                                                .toList());
-        }
+    public ResponseEntity<List<SignatureResponseDTO>> getSignatureByApplication(Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(repository.findByApplicationId(id)
+                        .stream()
+                        .map(signature -> SignatureResponseDTO.builder()
+                                .id(signature.getId())
+                                .applicationId(signature.getApplication().getId())
+                                .customerId(signature.getCustomer().getId())
+                                .beginningTerm(signature.getBeginningTerm())
+                                .endTerm(signature.getEndTerm())
+                                .status(signature.getEndTerm()
+                                        .isAfter(LocalDate.now()) ? "ACTIVE"
+                                        : "CANCELED")
+                                .build()
+                        )
+                        .toList());
+    }
 
-        public ResponseEntity<Boolean> getSignatureIsValid(Long id) {
-                var signature = repository.findById(id);
+    public ResponseEntity<Boolean> getSignatureIsValid(Long id) {
+        var signature = repository.findById(id);
 
-                if (!signature.isPresent())
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        return signature.map(value -> ResponseEntity.status(HttpStatus.OK)
+                        .body(value.getEndTerm()
+                                .isAfter(LocalDate.now())
+                        )
+                )
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
 
-                return ResponseEntity.status(HttpStatus.OK)
-                                .body(signature.get().getEndTerm().isAfter(LocalDate.now()) ? true : false);
-        }
+    }
 }

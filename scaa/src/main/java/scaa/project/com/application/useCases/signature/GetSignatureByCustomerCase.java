@@ -14,7 +14,7 @@ public class GetSignatureByCustomerCase {
     @Autowired
     private SignatureService service;
 
-    public ResponseEntity<List<SignatureResponseDTO>> getSignatureByCustomer(Long id){
+    public ResponseEntity<List<SignatureResponseDTO>> getSignatureByCustomer(Long id) {
         return service.getSignatureByCustomer(id);
     }
 }

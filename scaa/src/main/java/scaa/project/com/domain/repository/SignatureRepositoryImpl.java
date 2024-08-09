@@ -20,19 +20,4 @@ public interface SignatureRepositoryImpl {
 
     ResponseEntity<Boolean> getSignatureIsValid(Long id);
 
-    /*
-     * ResponseEntity<SignatureResponseDTO> getSignature(Long id);
-     * 
-     * ResponseEntity<List<SignatureResponseDTO>> getSignatureByApplication(Long
-     * id);
-     * 
-     * ResponseEntity<List<SignatureResponseDTO>> getSignatureByCustomer(Long id);
-     * 
-     * ResponseEntity<List<SignatureResponseDTO>> getSignatures();
-     * 
-     * ResponseEntity<SignatureResponseDTO> updateSignature(Long id, SignatureDTO
-     * dto);
-     * 
-     * ResponseEntity<?> deleteSignature(Long id);
-     */
 }

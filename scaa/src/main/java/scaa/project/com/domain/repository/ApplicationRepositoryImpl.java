@@ -9,15 +9,7 @@ import scaa.project.com.application.dto.application.response.ApplicationResponse
 
 public interface ApplicationRepositoryImpl {
 
-    /*
-     * ResponseEntity<ApplicationResponseDTO> createApplication(ApplicationDTO dto);
-     * 
-     * ResponseEntity<ApplicationResponseDTO> getApplication(Long id);
-     */
-
     ResponseEntity<List<ApplicationResponseDTO>> getApplications();
 
     ResponseEntity<ApplicationResponseDTO> updateApplication(Long id, ApplicationDTO dto);
-
-    /* ResponseEntity<?> deleteApplication(Long id); */
 }

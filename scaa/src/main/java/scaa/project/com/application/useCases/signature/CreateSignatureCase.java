@@ -13,7 +13,7 @@ public class CreateSignatureCase {
     @Autowired
     private SignatureService service;
 
-    public ResponseEntity<SignatureResponseDTO> createSignature(SignatureDTO dto){
+    public ResponseEntity<SignatureResponseDTO> createSignature(SignatureDTO dto) {
         return service.createSignature(dto);
     }
 }

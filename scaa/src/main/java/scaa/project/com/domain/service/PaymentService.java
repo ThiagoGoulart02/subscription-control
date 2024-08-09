@@ -7,11 +7,18 @@ import org.springframework.stereotype.Service;
 
 import scaa.project.com.application.dto.payment.request.PaymentDTO;
 import scaa.project.com.application.dto.payment.response.PaymentResponseDTO;
+import scaa.project.com.domain.entity.Payment;
 import scaa.project.com.domain.repository.PaymentRepositoryImpl;
+import scaa.project.com.infrastructure.persistence.PaymentRepository;
 import scaa.project.com.infrastructure.persistence.SignatureRepository;
+
+import java.time.LocalDate;
 
 @Service
 public class PaymentService implements PaymentRepositoryImpl {
+
+    @Autowired
+    private PaymentRepository repository;
 
     @Autowired
     private SignatureRepository signatureRepository;
@@ -19,12 +26,37 @@ public class PaymentService implements PaymentRepositoryImpl {
     public ResponseEntity<PaymentResponseDTO> createPayment(PaymentDTO dto) {
         var signature = signatureRepository.findById(dto.signatureId());
 
-        if (!signature.isPresent())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        if (signature.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
-        if (signature.get().getApplication().getMonthlyCost() < dto.amountPaid())
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (signature.get().getApplication().getMonthlyCost() > dto.amountPaid())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(PaymentResponseDTO.builder()
+                            .paymentDate(signature.get().getEndTerm())
+                            .paymentReversal(dto.amountPaid())
+                            .status("INCORRET_VALUE").build()
+                    );
 
-        return null;
+        if (signature.get().getEndTerm().isBefore(LocalDate.now())) {
+            signature.get().setBeginningTerm(dto.paymentDate());
+            signature.get().setEndTerm(dto.paymentDate().plusDays(30));
+        } else {
+            signature.get()
+                    .setEndTerm(signature.get()
+                            .getEndTerm()
+                            .plusDays(30)
+                    );
+        }
+
+        repository.save(new Payment(signature.get(), dto.amountPaid(), dto.paymentDate(), ""));
+
+        signatureRepository.save(signature.get());
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(PaymentResponseDTO.builder()
+                        .paymentDate(signature.get().getEndTerm())
+                        .paymentReversal(0)
+                        .status("PAYMENT_OK")
+                        .build()
+                );
     }
 }

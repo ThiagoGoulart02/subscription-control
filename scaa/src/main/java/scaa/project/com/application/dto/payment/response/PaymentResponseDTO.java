@@ -1,6 +1,6 @@
 package scaa.project.com.application.dto.payment.response;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class PaymentResponseDTO {
-    private String stats;
+    private LocalDate paymentDate;
     private float paymentReversal;
-    private Date paymentDate;
+    private String status;
 }

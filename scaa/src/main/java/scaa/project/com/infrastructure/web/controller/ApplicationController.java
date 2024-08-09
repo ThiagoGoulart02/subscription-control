@@ -29,20 +29,6 @@ public class ApplicationController {
     @Autowired
     private UpdateApplicationCase updateApplicationCase;
 
-    /*
-     * @PostMapping("/create-application")
-     * public ResponseEntity<ApplicationResponseDTO>
-     * createApplication(@RequestBody @Valid ApplicationDTO dto) {
-     * return createApplicationCase.createApplication(dto);
-     * }
-     * 
-     * @GetMapping("/get-application/{id}")
-     * public ResponseEntity<ApplicationResponseDTO> getApplication(@PathVariable
-     * Long id) {
-     * return getApplicationCase.getApplication(id);
-     * }
-     */
-
     @GetMapping("/applications")
     public ResponseEntity<List<ApplicationResponseDTO>> getApplications() {
         return getApplicationsCase.getApplications();
@@ -50,19 +36,7 @@ public class ApplicationController {
 
     @PutMapping("/applications/updatecost/{id}")
     public ResponseEntity<ApplicationResponseDTO> updateCost(@PathVariable Long id,
-            @RequestBody @Valid ApplicationDTO dto) {
+                                                             @RequestBody @Valid ApplicationDTO dto) {
         return updateApplicationCase.updateApplication(id, dto);
     }
-    /*
-     * @PutMapping("/update-application/{id}")
-     * public ResponseEntity<ApplicationResponseDTO> updateApplication(@PathVariable
-     * Long id, @RequestBody @Valid ApplicationDTO dto) {
-     * return updateApplicationCase.updateApplication(id, dto);
-     * }
-     * 
-     * @DeleteMapping("/delete-application/{id}")
-     * public ResponseEntity<?> deleteApplication(@PathVariable Long id) {
-     * return deleteApplicationCase.deleteApplication(id);
-     * }
-     */
 }

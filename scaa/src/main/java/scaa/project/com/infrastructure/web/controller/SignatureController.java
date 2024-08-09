@@ -67,41 +67,4 @@ public class SignatureController {
         return getSignatureIsValidCase.getSignatureIsValid(id);
     }
 
-    /*
-     * @GetMapping("/get-signature/{id}")
-     * public ResponseEntity<SignatureResponseDTO> getSignature(@PathVariable Long
-     * id) {
-     * return getSignatureCase.getSignature(id);
-     * }
-     * 
-     * @GetMapping("/get-signature/by-application/{id}")
-     * public ResponseEntity<List<SignatureResponseDTO>>
-     * getSignatureByApplication(@PathVariable Long id) {
-     * return getSignatureByApplicationCase.getSignatureApplicationCase(id);
-     * }
-     * 
-     * @GetMapping("/get-signature/by-customer/{id}")
-     * public ResponseEntity<List<SignatureResponseDTO>>
-     * getSignatureCustomer(@PathVariable Long id) {
-     * return getSignatureByCustomerCase.getSignatureByCustomer(id);
-     * }
-     * 
-     * @GetMapping("/get-signatures")
-     * public ResponseEntity<List<SignatureResponseDTO>> getSignatures() {
-     * return getSignaturesCase.getSignatures();
-     * }
-     * 
-     * @PutMapping("/update-signatures/{id}")
-     * public ResponseEntity<SignatureResponseDTO> updateSignature(@PathVariable
-     * Long id,
-     * 
-     * @RequestBody @Valid SignatureDTO dto) {
-     * return updateSignatureCase.updateSignature(id, dto);
-     * }
-     * 
-     * @DeleteMapping("/delete-signatures/{id}")
-     * public ResponseEntity<?> deleteSignature(@PathVariable Long id) {
-     * return deleteApplicationCase.deleteApplication(id);
-     * }
-     */
 }

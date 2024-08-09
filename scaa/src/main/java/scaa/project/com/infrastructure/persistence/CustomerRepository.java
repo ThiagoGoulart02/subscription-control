@@ -5,5 +5,4 @@ import scaa.project.com.domain.entity.Customer;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    Customer findByEmail(String email);
 }

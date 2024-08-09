@@ -20,39 +20,9 @@ public class CustomerController {
     @Autowired
     private GetCustumersCase getCostumersCase;
 
-    /*
-     * @PostMapping("/create-customer")
-     * public ResponseEntity<CustomerResponseDTO> createCustomer(@RequestBody @Valid
-     * CustomerDTO dto) {
-     * return createCustomerCase.createCustomer(dto);
-     * }
-     */
-
-    /*
-     * @GetMapping("/get-customer/{id}")
-     * public ResponseEntity<CustomerResponseDTO> getCustomer(@PathVariable Long id)
-     * {
-     * return getCostumerCase.getCustomer(id);
-     * }
-     */
-
     @GetMapping("/customers")
     public ResponseEntity<List<CustomerResponseDTO>> getCustomers() {
         return getCostumersCase.getCustomers();
     }
 
-    /*
-     * @PutMapping("/update-customer/{id}")
-     * public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable Long
-     * id,
-     * 
-     * @RequestBody @Valid CustomerDTO dto) {
-     * return updateCustomerCaseCustomerCase.updateCustomer(id, dto);
-     * }
-     * 
-     * @DeleteMapping("/delete-customer/{id}")
-     * public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
-     * return deleteCustomerCase.deleteCustomer(id);
-     * }
-     */
 }

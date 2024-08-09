@@ -14,7 +14,7 @@ public class GetCustumersCase {
     @Autowired
     private CustomerService service;
 
-    public ResponseEntity<List<CustomerResponseDTO>> getCustomers(){
+    public ResponseEntity<List<CustomerResponseDTO>> getCustomers() {
         return service.getCustomers();
     }
 }

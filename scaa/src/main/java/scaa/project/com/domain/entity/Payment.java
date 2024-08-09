@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "payments")
@@ -27,7 +27,14 @@ public class Payment {
     private float amountPaid;
 
     @Column(name = "payment_date")
-    private Date paymentDate;
+    private LocalDate paymentDate;
 
     private String promotion;
+
+    public Payment(Signature signature, float amountPaid, LocalDate paymentDate, String promotion) {
+        this.signature = signature;
+        this.amountPaid = amountPaid;
+        this.paymentDate = paymentDate;
+        this.promotion = promotion;
+    }
 }
