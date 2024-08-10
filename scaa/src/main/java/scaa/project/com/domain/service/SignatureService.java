@@ -171,4 +171,18 @@ public class SignatureService implements SignatureRepositoryImpl {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
 
     }
+
+    public SignatureResponseDTO verifySignature(Long id) {
+        return repository.findById(id)
+                .map(signature -> SignatureResponseDTO.builder()
+                        .id(signature.getId())
+                        .applicationId(signature.getApplication().getId())
+                        .customerId(signature.getCustomer().getId())
+                        .beginningTerm(signature.getBeginningTerm())
+                        .endTerm(signature.getEndTerm())
+                        .status(signature.getEndTerm().isAfter(LocalDate.now()) ? "ACTIVE" : "CANCELED")
+                        .build()
+                )
+                .orElse(null);
+    }
 }

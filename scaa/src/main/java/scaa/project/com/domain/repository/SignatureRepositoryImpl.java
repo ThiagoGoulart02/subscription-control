@@ -20,4 +20,5 @@ public interface SignatureRepositoryImpl {
 
     ResponseEntity<Boolean> getSignatureIsValid(Long id);
 
+    SignatureResponseDTO verifySignature(Long id);
 }

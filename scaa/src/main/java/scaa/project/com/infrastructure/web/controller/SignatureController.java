@@ -2,6 +2,7 @@ package scaa.project.com.infrastructure.web.controller;
 
 import java.util.List;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,11 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import scaa.project.com.application.dto.signature.request.SignatureDTO;
 import scaa.project.com.application.dto.signature.response.SignatureResponseDTO;
-import scaa.project.com.application.useCases.signature.CreateSignatureCase;
-import scaa.project.com.application.useCases.signature.GetSignatureByApplicationCase;
-import scaa.project.com.application.useCases.signature.GetSignatureByCustomerCase;
-import scaa.project.com.application.useCases.signature.GetSignatureCase;
-import scaa.project.com.application.useCases.signature.GetSignatureIsValidCase;
+import scaa.project.com.application.useCases.signature.*;
 import scaa.project.com.domain.enums.SignatureType;
 
 @RestController
@@ -41,6 +38,9 @@ public class SignatureController {
 
     @Autowired
     private GetSignatureIsValidCase getSignatureIsValidCase;
+
+    @Autowired
+    private VerifySignature verifySignature;
 
     @PostMapping("/signatures")
     public ResponseEntity<SignatureResponseDTO> createSignature(@RequestBody @Valid SignatureDTO dto) {
@@ -65,6 +65,11 @@ public class SignatureController {
     @GetMapping("/signature-is-valid/{id}")
     public ResponseEntity<Boolean> getSignatureIsValid(@PathVariable Long id) {
         return getSignatureIsValidCase.getSignatureIsValid(id);
+    }
+
+    @GetMapping("/verify-signature/{id}")
+    public SignatureResponseDTO verifySignature(@PathVariable Long id) {
+        return verifySignature.verifySignature(id);
     }
 
 }
