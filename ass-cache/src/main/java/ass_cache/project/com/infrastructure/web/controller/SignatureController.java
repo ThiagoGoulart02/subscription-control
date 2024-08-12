@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/servcad")
+@RequestMapping("")
 public class SignatureController {
 
     @Autowired
