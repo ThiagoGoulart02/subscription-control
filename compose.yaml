@@ -31,6 +31,7 @@ services:
       - SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS=true
     depends_on:
       - name-server
+      - rabbitmq
     networks:
       - microservices-network
 
@@ -47,6 +48,7 @@ services:
     depends_on:
       - name-server
       - scaa
+      - rabbitmq
     networks:
       - microservices-network
 
@@ -64,6 +66,14 @@ services:
       - name-server
       - scaa
       - ass-cache
+    networks:
+      - microservices-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
     networks:
       - microservices-network
 

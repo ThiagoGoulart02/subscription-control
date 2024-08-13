@@ -1,9 +1,11 @@
 package ass_cache.project.com.domain.service;
 
 import ass_cache.project.com.application.config.AssCacheProxy;
+import ass_cache.project.com.application.config.RabbitMQConfig;
 import ass_cache.project.com.application.dto.signature.response.SignatureResponseDTO;
 import ass_cache.project.com.domain.entity.Signature;
 import ass_cache.project.com.domain.repository.SignatureRepositoryImpl;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,5 +62,13 @@ public class SignatureService implements SignatureRepositoryImpl {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.SUBSCRIPTION_QUEUE)
+    public void receiveMessage(SignatureResponseDTO dto) {
+        System.out.println(dto);
+        signatures.put(dto.getId(), new Signature(dto));
+        System.out.println("================== MESSAGE CONSUMED ==================");
+        System.err.println("Saved in the DB");
     }
 }
