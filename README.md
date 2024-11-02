@@ -27,7 +27,8 @@ A aplicação foi construída com **Java** e o framework **Spring Boot**.
 - Spring Boot  
 - Eureka (Name Server para descoberta de serviços)  
 - API Gateway  
-- Cache Service (para otimização de dados)  
+- Cache Service (para otimização de dados)
+- Banco de Dados H2
 - Arquitetura CLEAN na fase monolítica  
 
 ## Como executar
