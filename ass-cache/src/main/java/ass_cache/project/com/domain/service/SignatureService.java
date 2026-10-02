@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -29,7 +28,7 @@ public class SignatureService implements SignatureRepositoryImpl {
             System.out.println("Get in the DB");
             var signature = signatures.get(id);
 
-            if (signature.getEndTerm().isBefore(LocalDate.now())) {
+            if (!signature.isActive()) {
                 System.out.println("removed from DB");
                 signatures.remove(id);
             }
@@ -41,8 +40,7 @@ public class SignatureService implements SignatureRepositoryImpl {
                             .customerId(signature.getCustomerId())
                             .beginningTerm(signature.getBeginningTerm())
                             .endTerm(signature.getEndTerm())
-                            .status(signature.getEndTerm()
-                                    .isAfter(LocalDate.now()) ? "ACTIVE" : "CANCELED")
+                            .status(signature.resolveStatus())
                             .build()
                     );
         }
@@ -51,13 +49,12 @@ public class SignatureService implements SignatureRepositoryImpl {
 
         if (signature != null) {
             System.out.println("Looked into scaa");
-            if (Objects.requireNonNull(signature).getEndTerm().isAfter(LocalDate.now())) {
+            var cached = new Signature(Objects.requireNonNull(signature));
+            if (cached.isActive()) {
                 System.out.println("Saved into DB");
-                signatures.put(id, new Signature(signature));
+                signatures.put(id, cached);
             }
-            signature.setStatus(signature
-                    .getEndTerm()
-                    .isAfter(LocalDate.now()) ? "ACTIVE" : "CANCELED");
+            signature.setStatus(cached.resolveStatus());
             return ResponseEntity.status(HttpStatus.OK).body(signature);
         }
 

@@ -15,8 +15,6 @@ import scaa.project.com.domain.repository.PaymentRepositoryImpl;
 import scaa.project.com.infrastructure.persistence.PaymentRepository;
 import scaa.project.com.infrastructure.persistence.SignatureRepository;
 
-import java.time.LocalDate;
-
 @Service
 public class PaymentService implements PaymentRepositoryImpl {
 
@@ -42,7 +40,7 @@ public class PaymentService implements PaymentRepositoryImpl {
                             .status("INCORRET_VALUE").build()
                     );
 
-        if (signature.get().getEndTerm().isBefore(LocalDate.now())) {
+        if (!signature.get().isActive()) {
             signature.get().setBeginningTerm(dto.paymentDate());
             signature.get().setEndTerm(dto.paymentDate().plusDays(30));
         } else {
@@ -55,14 +53,14 @@ public class PaymentService implements PaymentRepositoryImpl {
 
         repository.save(new Payment(signature.get(), dto.amountPaid(), dto.paymentDate(), ""));
 
-        if (signature.get().getEndTerm().isAfter(LocalDate.now())) {
+        if (signature.get().isActive()) {
             sendMessage(SignatureResponseDTO.builder()
                     .id(signature.get().getId())
                     .applicationId(signature.get().getApplication().getId())
                     .customerId(signature.get().getCustomer().getId())
                     .beginningTerm(signature.get().getBeginningTerm())
                     .endTerm(signature.get().getEndTerm())
-                    .status("ACTIVE")
+                    .status(signature.get().resolveStatus())
                     .build()
             );
         }

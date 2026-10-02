@@ -32,4 +32,13 @@ public class Signature {
         this.beginningTerm = dto.getBeginningTerm();
         this.endTerm = dto.getEndTerm();
     }
+
+    /** Active through the end of endTerm day (today inclusive). */
+    public boolean isActive() {
+        return endTerm != null && !endTerm.isBefore(LocalDate.now());
+    }
+
+    public String resolveStatus() {
+        return isActive() ? "ACTIVE" : "CANCELED";
+    }
 }

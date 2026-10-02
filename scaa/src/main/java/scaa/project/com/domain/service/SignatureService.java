@@ -73,49 +73,21 @@ public class SignatureService implements SignatureRepositoryImpl {
             case ALL:
                 signatures = repository.findAll()
                         .stream()
-                        .map(signature -> SignatureResponseDTO.builder()
-                                .id(signature.getId())
-                                .applicationId(signature.getApplication().getId())
-                                .customerId(signature.getCustomer().getId())
-                                .beginningTerm(signature.getBeginningTerm())
-                                .endTerm(signature.getEndTerm())
-                                .status(signature.getEndTerm()
-                                        .isAfter(LocalDate.now()) ? "ACTIVE"
-                                        : "CANCELED")
-                                .build()
-                        )
+                        .map(this::toResponseDTO)
                         .toList();
                 return ResponseEntity.status(HttpStatus.OK).body(signatures);
             case ACTIVES:
                 signatures = repository.findAll()
                         .stream()
-                        .filter(signature -> signature.getEndTerm()
-                                .isAfter(LocalDate.now()))
-                        .map(signature -> SignatureResponseDTO.builder()
-                                .id(signature.getId())
-                                .applicationId(signature.getApplication().getId())
-                                .customerId(signature.getCustomer().getId())
-                                .beginningTerm(signature.getBeginningTerm())
-                                .endTerm(signature.getEndTerm())
-                                .status("ACTIVE")
-                                .build()
-                        )
+                        .filter(Signature::isActive)
+                        .map(this::toResponseDTO)
                         .collect(Collectors.toList());
                 break;
             case CANCELED:
                 signatures = repository.findAll()
                         .stream()
-                        .filter(signature -> signature.getEndTerm()
-                                .isBefore(LocalDate.now()))
-                        .map(signature -> SignatureResponseDTO.builder()
-                                .id(signature.getId())
-                                .applicationId(signature.getApplication().getId())
-                                .customerId(signature.getCustomer().getId())
-                                .beginningTerm(signature.getBeginningTerm())
-                                .endTerm(signature.getEndTerm())
-                                .status("CANCELED")
-                                .build()
-                        )
+                        .filter(signature -> !signature.isActive())
+                        .map(this::toResponseDTO)
                         .collect(Collectors.toList());
                 break;
             default:
@@ -128,17 +100,7 @@ public class SignatureService implements SignatureRepositoryImpl {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(repository.findByCustomerId(id)
                         .stream()
-                        .map(signature -> SignatureResponseDTO.builder()
-                                .id(signature.getId())
-                                .applicationId(signature.getApplication().getId())
-                                .customerId(signature.getCustomer().getId())
-                                .beginningTerm(signature.getBeginningTerm())
-                                .endTerm(signature.getEndTerm())
-                                .status(signature.getEndTerm()
-                                        .isAfter(LocalDate.now()) ? "ACTIVE"
-                                        : "CANCELED")
-                                .build()
-                        )
+                        .map(this::toResponseDTO)
                         .toList());
     }
 
@@ -146,17 +108,7 @@ public class SignatureService implements SignatureRepositoryImpl {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(repository.findByApplicationId(id)
                         .stream()
-                        .map(signature -> SignatureResponseDTO.builder()
-                                .id(signature.getId())
-                                .applicationId(signature.getApplication().getId())
-                                .customerId(signature.getCustomer().getId())
-                                .beginningTerm(signature.getBeginningTerm())
-                                .endTerm(signature.getEndTerm())
-                                .status(signature.getEndTerm()
-                                        .isAfter(LocalDate.now()) ? "ACTIVE"
-                                        : "CANCELED")
-                                .build()
-                        )
+                        .map(this::toResponseDTO)
                         .toList());
     }
 
@@ -164,9 +116,7 @@ public class SignatureService implements SignatureRepositoryImpl {
         var signature = repository.findById(id);
 
         return signature.map(value -> ResponseEntity.status(HttpStatus.OK)
-                        .body(value.getEndTerm()
-                                .isAfter(LocalDate.now())
-                        )
+                        .body(value.isActive())
                 )
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
 
@@ -174,15 +124,18 @@ public class SignatureService implements SignatureRepositoryImpl {
 
     public SignatureResponseDTO verifySignature(Long id) {
         return repository.findById(id)
-                .map(signature -> SignatureResponseDTO.builder()
-                        .id(signature.getId())
-                        .applicationId(signature.getApplication().getId())
-                        .customerId(signature.getCustomer().getId())
-                        .beginningTerm(signature.getBeginningTerm())
-                        .endTerm(signature.getEndTerm())
-                        .status(signature.getEndTerm().isAfter(LocalDate.now()) ? "ACTIVE" : "CANCELED")
-                        .build()
-                )
+                .map(this::toResponseDTO)
                 .orElse(null);
+    }
+
+    private SignatureResponseDTO toResponseDTO(Signature signature) {
+        return SignatureResponseDTO.builder()
+                .id(signature.getId())
+                .applicationId(signature.getApplication().getId())
+                .customerId(signature.getCustomer().getId())
+                .beginningTerm(signature.getBeginningTerm())
+                .endTerm(signature.getEndTerm())
+                .status(signature.resolveStatus())
+                .build();
     }
 }
