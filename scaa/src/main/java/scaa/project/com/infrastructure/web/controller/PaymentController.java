@@ -10,7 +10,7 @@ import scaa.project.com.application.useCases.payment.CreatePaymentCase;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping()
+@RequestMapping("/servcad")
 public class PaymentController {
 
     @Autowired

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("")
+@RequestMapping("/ass-cache")
 public class SignatureController {
 
     @Autowired
