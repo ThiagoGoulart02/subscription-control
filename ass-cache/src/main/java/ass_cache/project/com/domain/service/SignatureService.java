@@ -7,29 +7,33 @@ import ass_cache.project.com.domain.entity.Signature;
 import ass_cache.project.com.domain.repository.SignatureRepositoryImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SignatureService implements SignatureRepositoryImpl {
 
+    private static final Logger log = LoggerFactory.getLogger(SignatureService.class);
+
     @Autowired
     private AssCacheProxy proxy;
 
-    private HashMap<Long, Signature> signatures = new HashMap<>();
+    private final ConcurrentHashMap<Long, Signature> signatures = new ConcurrentHashMap<>();
 
     public ResponseEntity<SignatureResponseDTO> verifySignature(Long id) {
 
         if (signatures.containsKey(id)) {
-            System.out.println("Get in the DB");
+            log.debug("Cache hit for signature id={}", id);
             var signature = signatures.get(id);
 
             if (!signature.isActive()) {
-                System.out.println("removed from DB");
+                log.debug("Removing expired signature id={} from cache", id);
                 signatures.remove(id);
             }
 
@@ -48,10 +52,10 @@ public class SignatureService implements SignatureRepositoryImpl {
         var signature = proxy.verifySignature(id);
 
         if (signature != null) {
-            System.out.println("Looked into scaa");
+            log.debug("Cache miss for signature id={}, fetched from SCAA", id);
             var cached = new Signature(Objects.requireNonNull(signature));
             if (cached.isActive()) {
-                System.out.println("Saved into DB");
+                log.debug("Caching active signature id={}", id);
                 signatures.put(id, cached);
             }
             signature.setStatus(cached.resolveStatus());
@@ -63,9 +67,8 @@ public class SignatureService implements SignatureRepositoryImpl {
 
     @RabbitListener(queues = RabbitMQConfig.SUBSCRIPTION_QUEUE)
     public void receiveMessage(SignatureResponseDTO dto) {
-        System.out.println(dto);
+        log.info("RabbitMQ message received for signature id={}", dto.getId());
         signatures.put(dto.getId(), new Signature(dto));
-        System.out.println("================== MESSAGE CONSUMED ==================");
-        System.err.println("Saved in the DB");
+        log.debug("Updated cache from queue for signature id={}", dto.getId());
     }
 }
