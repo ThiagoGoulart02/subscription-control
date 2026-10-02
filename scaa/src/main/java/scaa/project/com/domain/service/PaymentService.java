@@ -36,7 +36,7 @@ public class PaymentService implements PaymentRepositoryImpl {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(PaymentResponseDTO.builder()
                             .paymentDate(signature.get().getEndTerm())
-                            .paymentReversal(dto.amountPaid())
+                            .paymentReversal(dto.amountPaid().floatValue())
                             .status("INCORRET_VALUE").build()
                     );
 
@@ -51,7 +51,7 @@ public class PaymentService implements PaymentRepositoryImpl {
                     );
         }
 
-        repository.save(new Payment(signature.get(), dto.amountPaid(), dto.paymentDate(), ""));
+        repository.save(new Payment(signature.get(), dto.amountPaid().floatValue(), dto.paymentDate(), ""));
 
         if (signature.get().isActive()) {
             sendMessage(SignatureResponseDTO.builder()
